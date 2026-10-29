@@ -1,15 +1,57 @@
 # AGENTS.md（AI 代理指令）
 
-> 版本：v4.0 ｜ 作者：陈鑫宇 ｜ 更新：2026-10-27
-> 对应实现方向：v9「护照 · 杂志手账风」（单文件自包含版）
+> 版本：v5.0 ｜ 作者：陈鑫宇 ｜ 更新：2026-10-29
+> 对应实现方向：v9「护照 · 杂志手账风」（Vite + Vue3 工程版）
 
 ## 一、项目概述
 
-本仓库是个人展示网站（课程作业），单文件实现：`index.html` 内联全部 CSS 与 JavaScript。视觉风格为「护照 · 杂志手账风」：浅灰斜纹背景、护照式名片、便签时间线、票根荣誉、拍立得项目、剪报博客、留言板。项目还包含三份文档：`PRD.md`、`TECH_DESIGN.md`、`AGENTS.md`。
+本仓库是个人展示网站（课程作业），采用 **Vite + Vue3 标准工程化结构**。视觉风格为「护照 · 杂志手账风」：浅灰斜纹背景、护照式名片、便签时间线、票根荣誉、拍立得项目、剪报博客、留言板。项目还包含三份文档：`PRD.md`、`TECH_DESIGN.md`、`AGENTS.md`。
 
-## 二、开发规范（硬性约束）
+## 二、技术栈与目录结构
 
-### 2.1 隐私边界（不可违反）
+### 2.1 技术栈
+
+| 层 | 选型 |
+|---|---|
+| 框架 | Vue 3（Composition API + `<script setup>`） |
+| 构建工具 | Vite 5 |
+| 语言 | JavaScript（ES Module） |
+| 样式 | 原生 CSS（全局 `src/style.css` + 组件内联） |
+| 部署 | GitHub Pages（Vite 构建后 `dist/` 目录） |
+
+### 2.2 目录结构
+
+```
+portfolio/
+├── index.html          # Vite 入口 HTML（仅挂载点 + 字体引入）
+├── package.json        # 依赖与脚本
+├── vite.config.js      # Vite 配置（端口 5173，自动打开浏览器）
+├── public/
+│   └── img/            # 静态图片（三张项目封面）
+│       ├── cover-translate.jpg
+│       ├── cover-heritage.jpg
+│       └── cover-book.jpg
+├── src/
+│   ├── main.js         # Vue 应用入口（createApp）
+│   ├── App.vue         # 根组件（全部页面模板 + 交互逻辑）
+│   └── style.css       # 全局样式（全部 CSS 变量与组件样式）
+├── PRD.md
+├── TECH_DESIGN.md
+└── AGENTS.md
+```
+
+### 2.3 常用命令
+
+```bash
+npm install      # 安装依赖
+npm run dev      # 本地开发（http://localhost:5173）
+npm run build    # 生产构建（输出到 dist/）
+npm run preview  # 预览构建产物
+```
+
+## 三、开发规范（硬性约束）
+
+### 3.1 隐私边界（不可违反）
 
 页面任何位置**不得出现**：
 - 学校名称
@@ -19,33 +61,32 @@
 
 允许展示：姓名、2024 级 / 物联网工程、生日 2005.02、邮箱 706763331@qq.com、GitHub `0227-cxy`。
 
-### 2.2 代码维护原则
+### 3.2 代码维护原则
 
-- **单文件优先**：结构、样式、脚本全部在 `index.html` 内；新增功能默认写入该文件，不新增外部 js/css 文件；
-- **数据集中**：博客数据在 `<script>` 顶部 `blogs` 数组；技能、荣誉、项目、时间线为 HTML 静态数据，修改直接改对应 HTML 区块；
+- **Vue3 组合式 API**：统一使用 `<script setup>` 语法，响应式数据用 `ref()` / `computed()`；
+- **数据集中**：时间线、技能、荣誉、项目、博客数据在 `App.vue` 的 `<script setup>` 顶部定义为常量数组，修改直接改对应数组；
 - **localStorage 键固定**：留言只能用键 `site_guestbook`（兼容旧版数据，`name/content/date` 与旧 `name/msg/time` 字段都要能渲染）；点赞用 `site_likes`（`{uid:count}` 增量）+ `site_liked`（去重数组），uid = "p" + 博客标题；
-- **必须转义**：任何动态内容（留言）渲染前必须经 `escHtml()` 转义，禁止直接拼接未转义字符串；
-- **素材本地化**：图片只用 `assets/img/cover-*.jpg` 三张封面（词典书页 / 非遗拼贴 / 纸船载书，水彩手账风，与页面整体风格统一），不引入外部图片链接；
+- **素材本地化**：图片放在 `public/img/`，模板中用 `/img/cover-*.jpg` 引用；不引入外部图片链接；
 - **项目类型标注**：每个项目卡在照片左上角用红色贴纸徽章标注类型——划词翻译·生词本为"浏览器插件"，薪传坊·非遗平台、图书漂流平台为"在线网页"；链接按钮为中文胶囊（查看源码 / 在线体验 + → 箭头）；
-- **样式一致**：配色只改 `:root` 变量；装饰字体回退栈（Ma Shan Zheng / Zeyada → KaiTi）保持不变。
+- **样式一致**：配色只改 `src/style.css` 顶部的 `:root` 变量；装饰字体回退栈（Ma Shan Zheng / Zeyada → KaiTi）保持不变。
 
-### 2.3 内容真实
+### 3.3 内容真实
 
 - 荣誉、技能、时间线、项目链接必须与真实经历一致（荣誉 10 条、技能 13 项、项目 3 个）；
 - 项目链接：非遗 `https://app-fcn9b11i9z41.miaoda.online/`、图书漂流 `https://app-fcib95axcutd.miaoda.online/`、插件仓库 `https://github.com/0227-cxy/vocabulary-extension`；
 - 禁止编造不存在的数据或奖项。
 
-## 三、代码风格
+## 四、代码风格
 
-- 缩进 4 空格；CSS 选择器语义化命名（`.ticket-level`、`.project-polaroid` 等）；
+- 缩进 2 空格；CSS 选择器语义化命名（`.ticket-level`、`.project-polaroid` 等）；
 - 中文文案口语自然，英文徽章（National / Province / School 等）保持大写 + 间距；
 - 颜色、字号等参数集中在 `:root` 与各区块注释内维护。
 
-## 四、测试要求（改动后必做）
+## 五、测试要求（改动后必做）
 
-1. 双击 `index.html` 本地预览，或无头浏览器截图（桌面 1280 / 移动 375）核对布局；
+1. `npm run dev` 启动后浏览器打开 http://localhost:5173，核对布局；
 2. 逐项手测：
-   - 邮箱点击复制（含降级路径）；
+   - 邮箱点击复制；
    - 博客 7 个标签按钮筛选，选中按钮黑底高亮；
    - 博客点赞：点击 +1、已赞变红不可再点、刷新后计数保留；
    - 留言提交 → 刷新页面后仍在；
@@ -53,8 +94,8 @@
 3. 375px 无横向滚动；F12 Console 无报错；
 4. 改动后同步更新 `PRD.md` / `TECH_DESIGN.md`（功能、视觉、数据结构保持三份文档与代码一致）。
 
-## 五、注意事项
+## 六、注意事项
 
-- 不删除 `assets/img/cover-*.jpg`（项目卡片引用）；
+- 不删除 `public/img/cover-*.jpg`（项目卡片引用）；
 - 不把页面改回旧版"清新治愈自然风"（v7/v8 已废弃，当前风格为护照杂志手账风）；
-- 部署用静态托管（GitHub Pages / Vercel / Cloudflare），push 后自动发布。
+- 部署用 GitHub Pages：`npm run build` 后将 `dist/` 目录内容推到 `gh-pages` 分支，或配置 GitHub Actions 自动构建部署。
